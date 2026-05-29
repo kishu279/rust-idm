@@ -26,12 +26,6 @@ async fn main() -> Result<(), reqwest::Error> {
     let conn = args.conn;
     let path = args.path;
 
-    // let url = "https://vikingfile.com/d/YRmdoj5iTl/Spider-Noir.S01E01.1080p.AMZN.WEB-DL.DUAL.DDP5.1.H.264-.mkv";
-    // // "https://releases.ubuntu.com/26.04/ubuntu-26.04-desktop-amd64.iso";
-
-    // constants
-    // let connections = 10; // number of connections
-
     let response = helper_api_calls::header_check(&url[0..]).await;
 
     match response {
