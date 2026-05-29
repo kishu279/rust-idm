@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use reqwest::Client;
 use tokio::fs::{self, File};
 use tokio::io::{AsyncReadExt, AsyncWriteExt, BufReader, BufWriter};
