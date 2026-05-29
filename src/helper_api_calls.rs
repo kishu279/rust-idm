@@ -78,11 +78,14 @@ pub async fn header_check(url: &str) -> Result<Option<DownloadMetadata>, reqwest
     Ok(None)
 }
 
-pub async fn download_chunks(data: &mut DownloadMetadata) -> Result<(), reqwest::Error> {
+pub async fn download_chunks(
+    data: &mut DownloadMetadata,
+    path: &str,
+) -> Result<(), reqwest::Error> {
     let mut handles = vec![];
     let url = data.url.clone();
 
-    fs::create_dir_all("./temp").await.unwrap();
+    fs::create_dir_all(format!("{}", path)).await.unwrap();
 
     for i in &mut data.chunks {
         // change the status
@@ -91,6 +94,7 @@ pub async fn download_chunks(data: &mut DownloadMetadata) -> Result<(), reqwest:
         }
 
         let temp_path = i.temp_path.clone();
+        let path = path.to_string();
         let url = url.clone();
         let start = i.start;
         let end = i.end;
@@ -104,7 +108,9 @@ pub async fn download_chunks(data: &mut DownloadMetadata) -> Result<(), reqwest:
                 .await?;
 
             if responsne.status().is_success() {
-                let file = File::create(format!("./temp/{}", temp_path)).await.unwrap();
+                let file = File::create(format!("{}/{}", path, temp_path))
+                    .await
+                    .unwrap();
                 let mut writer = BufWriter::new(file);
                 let mut stream = responsne.bytes_stream();
 
@@ -139,8 +145,8 @@ pub async fn download_chunks(data: &mut DownloadMetadata) -> Result<(), reqwest:
     Ok(())
 }
 
-pub async fn merge_chunks(data: &mut DownloadMetadata) -> std::io::Result<()> {
-    let output_file = File::create_new(&data.file_name).await?;
+pub async fn merge_chunks(data: &mut DownloadMetadata, path: &str) -> std::io::Result<()> {
+    let output_file = File::create_new(format!("{path}/{}", &data.file_name)).await?;
     let mut writer = BufWriter::new(output_file);
 
     for chunk in &data.chunks {
@@ -156,6 +162,8 @@ pub async fn merge_chunks(data: &mut DownloadMetadata) -> std::io::Result<()> {
     for chunk in &data.chunks {
         fs::remove_file(format!("./temp/{}", &chunk.temp_path)).await?;
     }
+
+    fs::remove_dir("./temp").await.ok();
 
     Ok(())
 }
