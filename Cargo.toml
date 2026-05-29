@@ -2,6 +2,8 @@
 name = "rust-idm"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+description = "A high-speed Rust-based download manager for fast file retrieval."
 
 [dependencies]
 reqwest = { version = "0.11", features = ["json", "stream"] }
